@@ -21,8 +21,10 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.GestureDetector;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 
 /**
@@ -45,11 +47,6 @@ public class PhotoView extends AppCompatImageView {
 
     public PhotoView(Context context, AttributeSet attr, int defStyle) {
         super(context, attr, defStyle);
-        init();
-    }
-
-    private void init() {
-        attacher = new PhotoViewAttacher(this);
         //We always pose as a Matrix scale type, though we can change to another scale type
         //via the attacher
         super.setScaleType(ScaleType.MATRIX);
@@ -58,6 +55,21 @@ public class PhotoView extends AppCompatImageView {
             setScaleType(pendingScaleType);
             pendingScaleType = null;
         }
+    }
+
+    public void initialize() {
+        attacher = new PhotoViewAttacher(this);
+        attacher.setScaleLevels(ScaleConfig.getScaleLevels());
+    }
+
+    public void initialize(@NonNull float... scaleLevels) {
+        attacher = new PhotoViewAttacher(this);
+        attacher.setScaleLevels(scaleLevels);
+    }
+
+    public void initialize(@NonNull SparseArray<Float> scaleLevels) {
+        attacher = new PhotoViewAttacher(this);
+        attacher.setScaleLevels(scaleLevels);
     }
 
     /**
@@ -134,6 +146,18 @@ public class PhotoView extends AppCompatImageView {
         return changed;
     }
 
+    public void rotateTo(@PhotoViewAttacher.DegreeDefines int degree) {
+        attacher.rotateTo(degree, true, false);
+    }
+
+    public void rotateTo(@PhotoViewAttacher.DegreeDefines int degree, boolean animate) {
+        attacher.rotateTo(degree, true, animate);
+    }
+
+    public void rotateTo(@PhotoViewAttacher.DegreeDefines int degree, boolean clockwise, boolean animate) {
+        attacher.rotateTo(degree, clockwise, animate);
+    }
+
     public void setRotationTo(float rotationDegree) {
         attacher.setRotationTo(rotationDegree);
     }
@@ -171,39 +195,35 @@ public class PhotoView extends AppCompatImageView {
     }
 
     public float getMinimumScale() {
-        return attacher.getMinimumScale();
-    }
-
-    public float getMediumScale() {
-        return attacher.getMediumScale();
+        return attacher.getCompensatedMinScale();
     }
 
     public float getMaximumScale() {
-        return attacher.getMaximumScale();
+        return attacher.getCompensatedMaxScale();
+    }
+
+    public float getScaleAtLevel(int level) {
+        return attacher.getCompensateScaleAtLevel(level);
     }
 
     public float getScale() {
         return attacher.getScale();
     }
 
+    public int getLevelByScale(float scale) {
+        return attacher.getLevelByScale(scale);
+    }
+
     public void setAllowParentInterceptOnEdge(boolean allow) {
         attacher.setAllowParentInterceptOnEdge(allow);
     }
 
-    public void setMinimumScale(float minimumScale) {
-        attacher.setMinimumScale(minimumScale);
+    public int getEdgeDragPolicy() {
+        return attacher.getEdgeDragPolicy();
     }
 
-    public void setMediumScale(float mediumScale) {
-        attacher.setMediumScale(mediumScale);
-    }
-
-    public void setMaximumScale(float maximumScale) {
-        attacher.setMaximumScale(maximumScale);
-    }
-
-    public void setScaleLevels(float minimumScale, float mediumScale, float maximumScale) {
-        attacher.setScaleLevels(minimumScale, mediumScale, maximumScale);
+    public void setEdgeDragPolicy(int edgeDragPolicy) {
+        attacher.setEdgeDragPolicy(edgeDragPolicy);
     }
 
     public void setOnMatrixChangeListener(OnMatrixChangedListener listener) {
@@ -240,6 +260,10 @@ public class PhotoView extends AppCompatImageView {
 
     public void setZoomTransitionDuration(int milliseconds) {
         attacher.setZoomTransitionDuration(milliseconds);
+    }
+
+    public void setRotateTransitionDuration(int milliseconds) {
+        attacher.setRotateTransitionDuration(milliseconds);
     }
 
     public void setOnDoubleTapListener(GestureDetector.OnDoubleTapListener onDoubleTapListener) {
