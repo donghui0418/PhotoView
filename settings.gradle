@@ -1,2 +1,2 @@
-include 'photoview'
+include 'photoview', ':zoomabledrawee'
 include 'sample'

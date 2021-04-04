@@ -1,0 +1,43 @@
+apply plugin: 'com.android.library'
+
+def libraryName = 'zoomabledrawee'
+android {
+    compileSdkVersion rootProject.ext.sdkVersion
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion rootProject.ext.sdkVersion
+        versionCode 10000
+        versionName "1.0.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    android.libraryVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "${libraryName}-${defaultConfig.versionName}.aar"
+        }
+    }
+
+}
+
+dependencies {
+    def frescoVersion = '1.13.0'
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    implementation "com.facebook.fresco:fresco:$frescoVersion"
+}
